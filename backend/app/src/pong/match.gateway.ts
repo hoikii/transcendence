@@ -28,7 +28,7 @@ type PongKeyEvent = {
 추후 제출 시에는 다음과 같이 바꿔야 함:
 @WebSocketGateway({ namespace: 'api/pong', transports: ['websocket'] })
 */
-@WebSocketGateway({ namespace: 'api/pong', cors: true })
+@WebSocketGateway({ namespace: 'api/pong', cors: true, transports: ['websocket'] })
 export class MatchGateWay implements OnGatewayDisconnect, OnGatewayConnection {
   constructor(
     private matchService: MatchService,

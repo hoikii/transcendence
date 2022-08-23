@@ -40,7 +40,7 @@ import { ChatBanUserDto } from 'dto/chatBanUser.dto'
 */
 @AsyncApiService()
 @UsePipes(new WSValidationPipe())
-@WebSocketGateway({ namespace: 'api/chat', cors: true })
+@WebSocketGateway({ namespace: 'api/chat', cors: true, transports: ['websocket'] })
 export class ChatGateway {
   constructor(private readonly chatService: ChatService) {}
   @WebSocketServer()
