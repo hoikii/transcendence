@@ -107,18 +107,33 @@ export class ChatGateway {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: ChatMessageDto,
   ) {
+    const { roomId, msgContent } = data
+    const dmroom = await this.chatService.getDmRoomByRoomId(roomId)
+    if (dmroom) {
+      // roomId 의 roomtype이 DM이면 구성원 force join
+      for (const uid of dmroom.dmParticipantsUid) {
+        const sockets = await this.chatService.getSocketByUid(this.server, uid)
+        for (const soc of sockets) {
+          try {
+            await this.chatService.addUserToRoom(uid, roomId)
+          } catch (error) {}
+          soc.join(roomId.toString())
+        }
+        this.emitNotice(uid, roomId, 'join')
+      }
+    }
     let isMuted: boolean
     try {
-      isMuted = await this.chatService.isMuted(client.data.uid, data.roomId)
+      isMuted = await this.chatService.isMuted(client.data.uid, roomId)
     } catch (error) {
       return error
     }
     if (!isMuted) {
-      console.log(`chat: ${client.data.uid} sent ${data.msgContent}`)
+      console.log(`chat: ${client.data.uid} sent ${msgContent}`)
       this.broadcastMessage(client, data)
     } else {
       console.log(
-        `chat: ${client.data.uid} sent message but is muted in ${data.roomId}`,
+        `chat: ${client.data.uid} sent message but is muted in ${roomId}`,
       )
     }
     return { status: 200 }
@@ -505,11 +520,12 @@ export class ChatGateway {
     // inviter, invitee 둘이 속한 DM방이 있는지 확인
     const room = await this.chatService.getRoomDmByUid(inviter, invitee)
     if (room) {
-      return new BadRequestException(
-        `DM for ${inviter} and ${invitee} already exists(roomId ${room.id})`,
-      )
+      return {
+        status: 400,
+        roomId: room.id,
+        message: `DM for ${inviter} and ${invitee} already exists(roomId ${room.id})`,
+      }
     }
-
     // create new DM room
     let newRoom: ChatRoom
     try {
