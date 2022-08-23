@@ -181,7 +181,6 @@ export class ChatGateway {
       return error
     }
     client.join(room.roomId.toString())
-    console.log(`chat: ${client.data.uid} has entered to ${room.roomId}`)
     this.emitNotice(client.data.uid, room.roomId, 'join')
     return { status: 200 }
   }
@@ -257,6 +256,7 @@ export class ChatGateway {
       msgContent: msg,
       createdAt: new Date(),
     }
+    console.log(`chat: ${uid} has entered to ${roomId}`)
     this.server.to(roomId.toString()).emit(chatEvent.NOTICE, data)
   }
 
@@ -288,7 +288,6 @@ export class ChatGateway {
       return error
     }
     client.join(newRoom.id.toString())
-    console.log(`chat: ${client.data.uid} has entered to ${newRoom.id}`)
     this.emitNotice(client.data.uid, newRoom.id, 'join')
     return { status: 200 }
   }
@@ -496,7 +495,6 @@ export class ChatGateway {
       }
       soc.join(roomId.toString())
     }
-    console.log(`chat: ${invitee} has entered to ${roomId}`)
     // room의 모두에게 NOTICE 전송
     this.emitNotice(invitee, roomId, 'join')
   }
@@ -534,13 +532,11 @@ export class ChatGateway {
       return error
     }
     client.join(newRoom.id.toString())
-    console.log(`chat: ${inviter} has entered to ${newRoom.id}`)
 
     const sockets = await this.chatService.getSocketByUid(this.server, invitee)
     sockets.forEach(async (el) => {
       el.join(newRoom.id.toString())
     })
-    console.log(`chat: ${invitee} has entered to ${newRoom.id}`)
 
     this.emitNotice(inviter, newRoom.id, 'join')
     this.emitNotice(invitee, newRoom.id, 'join')
