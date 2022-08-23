@@ -398,13 +398,11 @@ export class ChatGateway {
       createdAt: new Date(),
     }
     this.server.to(roomId.toString()).emit(chatEvent.NOTICE, msg)
-    // unban될 사용자에게 unban됐음을 notice (필요시 주석 해제)
-    /*
+    // unban될 사용자에게 unban됐음을 notice
     const sockets = await this.chatService.getSocketByUid(this.server, uid)
     sockets.forEach(async (el) => {
       el.emit(chatEvent.NOTICE, msg)
     })
-    */
     return { status: 200 }
   }
 
