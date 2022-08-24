@@ -531,10 +531,23 @@ export class ChatGateway {
     // inviter, invitee 둘이 속한 DM방이 있는지 확인
     const room = await this.chatService.getRoomDmByUid(inviter, invitee)
     if (room) {
-      return {
-        status: 400,
-        roomId: room.id,
-        message: `DM for ${inviter} and ${invitee} already exists(roomId ${room.id})`,
+      if (await this.chatService.isUserInRoom(inviter, room.id)) {
+        return {
+          status: 400,
+          roomId: room.id,
+          message: `DM for ${inviter} and ${invitee} already exists(roomId ${room.id})`,
+        }
+      } else {
+        const sockets = await this.chatService.getSocketByUid(
+          this.server,
+          inviter,
+        )
+        sockets.forEach(async (el) => {
+          el.join(room.id.toString())
+          this.emitNotice(inviter, room.id, 'join')
+        })
+        this.chatService.addUserToRoom(inviter, room.id)
+        return { status: 200 }
       }
     }
     // create new DM room
