@@ -86,6 +86,7 @@ export class ChatGateway {
       return error
     }
     console.log(`chat: uid ${client.data.uid} connected.`)
+    this.onUserStatusChanged(client.data.uid, Status.ONLINE)
   }
 
   async handleDisconnect(client: Socket) {
@@ -95,8 +96,12 @@ export class ChatGateway {
       return error
     }
     console.log(`chat: uid ${client.data.uid} disconnected`)
+    this.onUserStatusChanged(client.data.uid, Status.OFFLINE)
   }
 
+  async onUserStatusChanged(uid: number, status: Status) {
+    this.server.emit(chatEvent.STATUS, { uid, status })
+  }
   @AsyncApiPub({
     channel: chatEvent.SEND,
     summary: '클라이언트->서버로 메시지 전송',
