@@ -33,6 +33,7 @@ import { ChatMuteUserDto } from 'dto/chatMuteUser.dto'
 import { ChatUserEvent } from './chatuserEvent.enum'
 import { ChatUserStatusChangedDto } from 'dto/chatuserStatusChanged.dto'
 import { ChatBanUserDto } from 'dto/chatBanUser.dto'
+import { UserStatusDto } from 'dto/userStatus.dto'
 
 /* FIXME: websocket 테스트 클라이언트에서는 cors: true 키만 있어야 동작함
 추후 제출 시에는 다음과 같이 변경:
@@ -108,6 +109,11 @@ export class ChatGateway {
     this.onUserStatusChanged(client.data.uid, Status.OFFLINE)
   }
 
+  @AsyncApiSub({
+    channel: chatEvent.STATUS,
+    summary: '온,오프라인,게임중 상태변경',
+    message: { name: 'uid, status', payload: { type: UserStatusDto } },
+  })
   async onUserStatusChanged(uid: number, status: Status) {
     this.server.emit(chatEvent.STATUS, { uid, status })
   }
