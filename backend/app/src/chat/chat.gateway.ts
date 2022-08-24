@@ -90,18 +90,28 @@ export class ChatGateway {
   }
 
   async handleDisconnect(client: Socket) {
+    // 현재 uid로 아직 연결된 소켓이 있으면 상태update 하지 않음
+    const sockets = await this.chatService.getSocketByUid(
+      this.server,
+      client.data.uid,
+    )
+    if (sockets.length > 0) {
+      console.log(`chat: uid ${client.data.uid} disconnected`)
+      return
+    }
     try {
       await this.chatService.changeStatus(client.data.uid, Status.OFFLINE)
     } catch (error) {
       return error
     }
-    console.log(`chat: uid ${client.data.uid} disconnected`)
+    console.log(`chat: uid ${client.data.uid} disconnected and OFFLINE`)
     this.onUserStatusChanged(client.data.uid, Status.OFFLINE)
   }
 
   async onUserStatusChanged(uid: number, status: Status) {
     this.server.emit(chatEvent.STATUS, { uid, status })
   }
+
   @AsyncApiPub({
     channel: chatEvent.SEND,
     summary: '클라이언트->서버로 메시지 전송',
