@@ -516,7 +516,7 @@ export class ChatGateway {
     channel: chatEvent.INVITE_DM,
     summary: 'invitee와의 DM방 생성',
     description:
-      'dm방을 새로 만들고 sender와 invitee를 집어넣음. sender와 invitee에게 "join"을 NOTICE',
+      'dm방을 새로 만들고 sender와 invitee를 집어넣음. sender와 invitee에게 "join"을 NOTICE\n\nsender와 invitee를 위한 DM방이 이미 존재하고, sender가 그 방에 들어있으면 400과 roomId를 리턴',
     message: { name: 'ChatInviteDMDto', payload: { type: ChatInviteDMDto } },
   })
   @SubscribeMessage(chatEvent.INVITE_DM)
