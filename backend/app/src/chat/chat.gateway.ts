@@ -501,7 +501,7 @@ export class ChatGateway {
     if (client.rooms.has(roomId.toString()) === false)
       return new BadRequestException()
     // invitee가 roomId에 속해있는지
-    if (this.chatService.isUserInRoom(invitee, roomId))
+    if (await this.chatService.isUserInRoom(invitee, roomId))
       return new BadRequestException('user is already in room')
     // invitee의 소켓id 찾아서 room에 추가
     const sockets = await this.chatService.getSocketByUid(this.server, invitee)
