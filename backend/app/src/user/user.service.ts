@@ -267,7 +267,7 @@ export class UserService {
     const user = await this.findOneByUid(uid)
     if (!user) throw new NotFoundException('User not found')
     user.status = status
-    this.userRepository.save(user).catch(() => {
+    await this.userRepository.save(user).catch(() => {
       throw new InternalServerErrorException('Status not changed')
     })
   }
